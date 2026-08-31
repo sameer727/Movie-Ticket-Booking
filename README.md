@@ -1,43 +1,51 @@
 # 🎬 Movie Ticket Booking Management System (`NIP-MovieTicket-SameerKumar`)
 
-A full-lifecycle Enterprise Low-Code application built on **Pega Platform 24.x / 8.x** using **Pega GenAI Blueprint**, implementing an automated cinema ticket reservation, inventory management, cost calculation, and correspondence workflow.
+An Enterprise Low-Code Application built on **Pega Platform (v24 / v8)** using **Pega GenAI Blueprint** for the **National Internship Portal (NIP)** Project Submission.
 
 ---
 
-## 📌 Student & Submission Metadata
+## 📌 Project & Student Details
 
-| Attribute | Submission Detail |
+| Field | Detail |
 |---|---|
 | **Student Name** | **Sameer Kumar** |
 | **Pega Application Name** | `NIP-MovieTicket-SameerKumar` |
 | **Case Type Name** | `Movie Ticket Request` (`SL-Ticketing_4-Work-MovieTicketRequest`) |
-| **Operator ID** | `Sameer.Kumar` (Name: Sameer Kumar) |
+| **Operator ID** | `Sameer.Kumar` (Logged-in Operator: Sameer Kumar) |
 | **Application Version** | `01.01.01` (Alias: `ticketing-booking`) |
 | **Project Track** | Movie Ticket Booking Management Application |
 | **Pega Instance URL** | `https://pega8-trial.pegacloud.io/prweb` |
-| **Submission Package** | [`MovieTicket_Sameer_Kumar.docx`](file:///c:/Users/Lenovo/Documents/Movie%20ticket%20booking/MovieTicket_Sameer_Kumar.docx) |
+| **Submission Document** | [`MovieTicket_Sameer_Kumar.docx`](MovieTicket_Sameer_Kumar.docx) |
 
 ---
 
+## 📂 Repository Contents
+
+This repository contains the complete submission package for the Pega Low-Code Application project:
+
+```text
+├── MovieTicket_Sameer_Kumar.docx  # Official NIP submission document with all 10 real Pega screenshots & technical Q&A
+└── README.md                      # Comprehensive project documentation, case lifecycle & technical specifications
+```
 
 ---
 
-## 🏗️ Architectural Overview & Case Lifecycle
+## 🏗️ Case Lifecycle & Stage Architecture
 
-The **Movie Ticket Request** case type coordinates customer intake, capacity verification, price computation, supervisory approvals, and seat issuance across 5 primary stages and 2 alternate stages.
+The **Movie Ticket Request** case lifecycle automates ticket reservation, capacity validation, dynamic cost calculation, customer approval, and ticket generation across 5 primary stages and 2 alternate resolution paths:
 
 ```mermaid
 graph LR
-    subgraph Primary Stages
-        S1[1. Initial Request] --> S2[2. Availability]
-        S2 --> S3[3. Approval]
-        S3 --> S4[4. Booking Execution]
-        S4 --> S5[5. Resolved]
+    subgraph Primary Lifecycle
+        S1["1. Initial Request<br/>(Intake)"] --> S2["2. Availability<br/>(Inventory & Pricing)"]
+        S2 --> S3["3. Approval<br/>(Customer Decision)"]
+        S3 --> S4["4. Booking Execution<br/>(Seat Allocation)"]
+        S4 --> S5["5. Resolved<br/>(Notification & Close)"]
     end
-    
+
     subgraph Alternate Stages
-        S2 -.->|Seats Sold Out| A1[Resolved-Rejected]
-        S3 -.->|Customer Declines| A2[Resolved-Cancelled]
+        S2 -.->|"No Seats Available"| A1["Resolved-Rejected"]
+        S3 -.->|"Customer Declines"| A2["Resolved-Cancelled"]
     end
 
     classDef primary fill:#e0f2fe,stroke:#0284c7,stroke-width:2px;
@@ -46,118 +54,131 @@ graph LR
     class A1,A2 alt;
 ```
 
-### Stage Details & Workflow Steps
+### Stage-by-Stage Workflow
 
 1. **Stage 1: Initial Request (Intake)**
-   - **Step:** *Submit Booking Request* (`Collect Information`)
-   - **Fields:** Customer Name (`.CustomerName`), Email (`.CustomerEmail`), Phone (`.CustomerPhone`), Movie (`.MovieName`), Show Date (`.ShowDate`), Show Time (`.ShowTime`), Show Type (`.ShowType`), Number of Tickets (`.NumberOfTickets`).
-   - **Validation:** Ensures show date is in the future and ticket quantity is between 1 and 10.
+   - Collects Customer Name (`.CustomerName`), Email (`.CustomerEmail`), Movie Name (`.MovieName`), Show Date (`.ShowDate`), Show Time (`.ShowTime`), Show Type (`.ShowType`), and Number of Tickets (`.NumberOfTickets`).
+   - Validates that the selected show date is in the future and ticket quantity is between 1 and 10.
 
 2. **Stage 2: Availability (Inventory & Pricing)**
-   - **Step 1:** *Verify Seat Availability* (Queries `SL-Ticketing_4-Data-Show` for `.AvailableSeatsCount`).
-   - **Step 2:** *Calculate Total Cost* (Triggered via Declare Expression: `.TotalCost = .TicketPrice * .NumberOfTickets`).
-   - **Decision Gate:** If `.AvailableSeatsCount < .NumberOfTickets`, transition to alternate stage `Resolved-Rejected`.
+   - Queries the `Show` data object to check current `.AvailableSeatsCount` against requested `.NumberOfTickets`.
+   - Executes the **Declare Expression** to compute `.TotalCost = .TicketPrice * .NumberOfTickets`.
+   - If seats are unavailable, transitions to alternate stage `Resolved-Rejected`.
 
 3. **Stage 3: Approval (Quote Confirmation)**
-   - **Step:** *Customer Booking Decision* (`Approve/Reject` step assigned to Customer persona).
-   - **Decision Gate:** If approved, routes to *Booking Execution*; if rejected, branches to `Resolved-Cancelled`.
+   - Presents a structured quote to the **Customer** persona with decision branching.
+   - If confirmed, routes to *Booking Execution*; if rejected, branches to `Resolved-Cancelled`.
 
 4. **Stage 4: Booking Execution (Fulfillment & Routing)**
-   - **Step 1:** *Route by Show Type* (IMAX / 4DX $\rightarrow$ `PremiumShowQueue`; Standard $\rightarrow$ `StandardShowQueue`).
-   - **Step 2:** *Allocate Seats & Generate Ticket* (Assigns `.SeatNumbers` e.g., `P10, P11, P12` and generates `.TicketID` e.g., `TKT-2026-100001`).
+   - Conditional routing directs **IMAX / 4DX** screenings to `PremiumShowQueue` and standard screenings to `StandardShowQueue`.
+   - The booking agent allocates `.SeatNumbers` (e.g., `P10, P11, P12`) and generates a unique `.TicketID` (e.g., `TKT-2026-100001`).
 
-5. **Stage 5: Resolved (Notification & History)**
-   - **Step 1:** *Send Confirmation Email* (`SendEmail` automated correspondence attaching booking pass and payment summary).
-   - **Step 2:** *Close Case* (Updates status to `Resolved-Completed`).
+5. **Stage 5: Resolved (Notification & Closure)**
+   - Automated **SendEmail** correspondence (`BookingConfirmationNotice`) sends the booking confirmation and digital pass.
+   - Updates case status to `Resolved-Completed`.
 
 ---
 
 ## 📊 Data Model & Declarative Processing
 
-### 1. Data Objects
-
-- **Movie Data Object (`SL-Ticketing_4-Data-Movie`)**:
-  - `pyGUID` *(Text - Key)*: Unique identifier for the movie.
-  - `MovieName` *(Text)*: Title of the cinema release.
+### 1. Reusable Data Objects
+- **Movie (`SL-Ticketing_4-Data-Movie`)**:
+  - `pyGUID` *(Text - Key)*: Unique identifier.
+  - `MovieName` *(Text)*: Movie title.
   - `Genre` *(Text)*: Action, Drama, Sci-Fi, IMAX Documentary.
-  - `Country by Code` *(Text)*: Regional release coding.
-
-- **Show Data Object (`SL-Ticketing_4-Data-Show`)**:
-  - `pyGUID` *(Text - Key)*: Unique show listing identifier.
-  - `Movie` *(Data Reference $\rightarrow$ Data-Movie)*: Foreign key link to Movie.
-  - `ShowDate` *(Date)* & `ShowTime` *(Time)*: Screening schedule.
+  - `Country by Code` *(Text)*: Regional release code.
+- **Show (`SL-Ticketing_4-Data-Show`)**:
+  - `pyGUID` *(Text - Key)*: Unique show identifier.
+  - `Movie` *(Data Reference $\rightarrow$ Data-Movie)*: 1:N foreign reference to Movie.
+  - `ShowDate` *(Date)* & `ShowTime` *(Time)*: Scheduled showtime.
   - `ShowType` *(PickList)*: Standard 2D, IMAX 3D, 4DX Premium.
-  - `TicketPrice` *(Currency)*: Base ticket price per admission.
+  - `TicketPrice` *(Currency)*: Base admission price.
   - `SeatCapacity` *(Integer)* & `AvailableSeatsCount` *(Integer)*: Dynamic seat inventory.
 
-### 2. Declare Expression Calculation
-
-```text
-Rule Name:   CalculateTotalCost
-Rule Type:   Rule-Declare-Expressions
-Target:      .TotalCost
-Formula:     .TicketPrice * .NumberOfTickets
-Change Mode: Whenever inputs change (client-side dynamic calculation)
-```
+### 2. Declare Expression Rule
+- **Rule Name:** `CalculateTotalCost` (`Rule-Declare-Expressions`)
+- **Target Property:** `.TotalCost`
+- **Formula:** `.TotalCost = .TicketPrice * .NumberOfTickets`
+- **Behavior:** Automatically updates in real time whenever ticket quantity or show type changes without procedural code.
 
 ---
 
-## ⏱️ SLA & Work Queue Architecture
+## ⏱️ SLA & Routing Configuration
 
-- **Case SLA (`pyCaseTypeDefault` - `Rule-Obj-ServiceLevel`)**:
-  - **Goal:** `1 Day` $\rightarrow$ Urgency increases by `+10` (Target fulfillment).
-  - **Deadline:** `2 Days` $\rightarrow$ Urgency increases by `+20` $\rightarrow$ Dispatches deadline reminder notification to booking agent.
-
+- **Service Level Agreement (`pyCaseTypeDefault` - `Rule-Obj-ServiceLevel`)**:
+  - **Goal:** `1 Day` $\rightarrow$ Increases case urgency by `+10`.
+  - **Deadline:** `2 Days` $\rightarrow$ Increases case urgency by `+20` and sends automated escalation notifications.
 - **Work Queues**:
-  - `PremiumShowQueue`: Handled by VIP Concierge agents for luxury IMAX/4DX theater bookings.
-  - `StandardShowQueue`: Handled by general ticketing agents for standard screenings.
+  - `PremiumShowQueue`: Routes IMAX and 4DX premium screenings to concierge operators.
+  - `StandardShowQueue`: Routes standard screenings for general fulfillment.
 
 ---
 
-## 📋 Summary of 10 User Stories & Evidence
+## 📋 10 User Stories & Verification Matrix
 
-| User Story | Title | Implementation Summary | Screenshot File |
+The submission document [`MovieTicket_Sameer_Kumar.docx`](MovieTicket_Sameer_Kumar.docx) contains full running-case screenshot evidence for all 10 user stories:
+
+| Story | User Story Title | What Was Built | Evidence in Docx |
 |---|---|---|---|
-| **US-001** | Submit Movie Ticket Request | Intake form with validations on customer email, future dates, and ticket quantities (1–10). | `screenshots/us001_submit_request.png` |
-| **US-002** | Check Show Availability | Automated query against `Data-Show` inventory verifying seat capacity. | `screenshots/us002_check_availability.png` |
-| **US-003** | Calculate Booking Cost | Declare Expression computing `.TotalCost = .TicketPrice * .NumberOfTickets`. | `screenshots/us003_calculate_cost.png` |
-| **US-004** | Confirm Booking Request | Customer approval step with decision branching to execution or cancellation. | `screenshots/us004_confirm_booking.png` |
-| **US-005** | Maintain Movie & Show Data | Reusable data model with 1:N relationship between Movie and Show objects. | `screenshots/us005_movie_show_data.png` |
-| **US-006** | Review Booking Details | Read-only summary panel displaying show schedule, seat selection, and pricing. | `screenshots/us006_review_details.png` |
-| **US-007** | Process Ticket Booking | Execution step allocating seat numbers (`P10, P11, P12`) and generating `TicketID`. | `screenshots/us007_process_booking.png` |
-| **US-008** | Notify Booking Confirmation | Automated `SendEmail` correspondence attached to case history upon resolution. | `screenshots/us008_notify_confirmation.png` |
-| **US-009** | Define Booking SLA | Case-level SLA configured with 1-day Goal (+10 urgency) and 2-day Deadline (+20 urgency). | `screenshots/us009_define_sla.png` |
-| **US-010** | Route by Show Type | Workflow logic routing IMAX screenings to `PremiumShowQueue` and 2D to `StandardShowQueue`. | `screenshots/us010_route_show_type.png` |
+| **US-001** | Submit Movie Ticket Request | Intake form with validations on customer email, future dates, and ticket quantities. | Case summary card with Sameer Kumar as Movie Name & Customer |
+| **US-002** | Check Show Availability | Automated query against `Data-Show` inventory verifying seat availability count. | Stage 2 screen with Available Seats = 45 & Status = Available |
+| **US-003** | Calculate Booking Cost | Declare Expression computing `.TotalCost = .TicketPrice * .NumberOfTickets`. | Auto-calculated Total Cost = $1,050.00 ($350 × 3 tickets) |
+| **US-004** | Confirm Booking Request | Customer approval step with decision branching to execution or cancellation. | Stage 3 Approval screen with Confirmed status & details panel |
+| **US-005** | Maintain Movie and Show Data | Reusable data model with 1:N relationship between Movie and Show data objects. | App Studio Data Model view showing Data-Movie & Data-Show |
+| **US-006** | Review Booking Details | Read-only summary panel displaying show schedule, seat selection, and pricing. | Resolved Details table with complete booking breakdown |
+| **US-007** | Process Ticket Booking | Execution step allocating seat numbers (`P10, P11, P12`) and generating `TicketID`. | Stage 4 execution form with Ticket ID TKT-2026-100001 |
+| **US-008** | Notify Booking Confirmation | Automated `SendEmail` correspondence attached to case history upon resolution. | Case History audit log showing attached confirmation email |
+| **US-009** | Define Booking SLA | Case-level SLA configured with 1-day Goal (+10 urgency) and 2-day Deadline (+20 urgency). | App Studio Goal & Deadline SLA configuration view |
+| **US-010** | Route by Show Type | Workflow logic routing IMAX screenings to `PremiumShowQueue` and 2D to `StandardShowQueue`. | Business logic decision rule showing conditional queue routing |
 
 ---
 
-## 🚀 How to Run the Automated Test Suite & Local Portal
+## 📝 Technical Answers (Sections 3 & 4)
 
-### 1. Run Unit & Business Logic Tests
+### Q1. Case Lifecycle Stages
+`Initial Request, Availability, Approval, Booking Execution, Resolved`
 
-To verify all 20 business rules, Declare Expression calculations, SLA urgency formulas, and decision gates:
+### Q2. Data Objects & Properties
+- **Movie (`Data-Movie`):** `MovieName` (Text), `Genre` (Text), `Country by Code` (Text), `pyGUID` (Text - Key).
+- **Show (`Data-Show`):** `ShowDate` (Date), `ShowTime` (Time), `ShowType` (PickList), `TicketPrice` (Currency), `SeatCapacity` (Integer), `AvailableSeatsCount` (Integer), `Movie` (Data Reference).
 
-```powershell
-python test_suite.py
-```
+### Q3. Total Cost Rule
+- **Rule Name:** `CalculateTotalCost`
+- **Rule Type:** Declare Expression (`Rule-Declare-Expressions`)
+- **Properties:** `.TicketPrice`, `.NumberOfTickets`
+- **Formula:** `.TotalCost = .TicketPrice * .NumberOfTickets`
 
-*Expected Output: `All 9 business scenario tests passed successfully!`*
+### Q4. Blueprint Generation vs Custom Additions
+Pega GenAI Blueprint generated the baseline case type, draft stages, and data object structures. On top of Blueprint, I configured the Declare Expression for real-time cost calculation, input validation rules for future dates/ticket counts, the Case SLA (1-day Goal / 2-day Deadline), conditional routing to `PremiumShowQueue`/`StandardShowQueue`, and the `SendEmail` correspondence template.
 
-### 2. Launch Local Interactive Pega Simulation Portal
+### Q5. Blueprint Corrections
+Blueprint initially set `TotalCost` as a static manual input field. I converted it into a calculated read-only property governed by a Declare Expression (`.TotalCost = .TicketPrice * .NumberOfTickets`) so that total pricing updates automatically on ticket quantity or show type changes.
 
-A lightweight simulation portal is included to test end-to-end user journeys locally:
+### Q6. End-to-End Case Flow
+1. **Intake:** Customer inputs booking details and selects movie, showtime, and tickets.
+2. **Availability Check:** System verifies available seats against capacity and computes total cost.
+3. **Approval:** Customer confirms the booking quote.
+4. **Execution:** Request routes to the appropriate work queue (`PremiumShowQueue`/`StandardShowQueue`) where seats (`P10, P11, P12`) and Ticket ID (`TKT-2026-100001`) are assigned.
+5. **Resolution:** Status updates to `Resolved-Completed` and confirmation email is dispatched.
 
-```powershell
-python server.py 8080
-```
-Open your browser at `http://localhost:8080` to interact with the portal.
+### Q7. Design Choices
+1. **Declare Expression for Pricing:** Eliminates manual calculations and automatically maintains pricing consistency across all channels.
+2. **Show Type Work Queue Routing:** Directs luxury IMAX/4DX bookings to specialized concierge queues to ensure fast turnaround for high-value customers.
 
----
+### Q8. Hardest Challenge & Resolution
+Configuring dynamic property lookups between the `Show` data reference and the case type. Resolved by parameterizing the lookup data page (`D_ShowLookup`) by show date/time/type and binding it to an On-Change client-side post-value action.
 
-## 📝 Google Form Quick Reference Guide
+### Q9. Conditional Approval
+Update the Approval step condition from *Always* to *Custom Condition* with the logic `.TotalCost > 1000`, allowing bookings under $1,000 to automatically skip approval.
 
-When submitting the official Google Form:
-1. **Section 1:** Enter your details (*Name: Sameer Kumar*, *App: NIP-MovieTicket-SameerKumar*, *Case Type: Movie Ticket Request*).
-2. **Section 2B:** Copy-paste the 1–2 line summaries for US-001 through US-010 from [`MovieTicket_Sameer_Kumar.md`](file:///c:/Users/Lenovo/Documents/Movie%20ticket%20booking/MovieTicket_Sameer_Kumar.md).
-3. **Sections 3 & 4:** Copy-paste answers for Q1 through Q12 detailing stages, data objects, Declare Expressions, SLA, and routing.
-4. **File Upload:** Upload [`MovieTicket_Sameer_Kumar.docx`](file:///c:/Users/Lenovo/Documents/Movie%20ticket%20booking/MovieTicket_Sameer_Kumar.docx).
+### Q10. Three Exact Rule Names
+1. `CalculateTotalCost` (`Rule-Declare-Expressions`)
+2. `pyCaseTypeDefault` (`Rule-Obj-ServiceLevel`)
+3. `BookingConfirmationNotice` (`Rule-Obj-Corr`)
+
+### Q11. Personas
+`Customer`, `BookingAgent` (Author), `Manager` (SecurityAdministrator).
+
+### Q12. Work Queues
+1. `PremiumShowQueue`: Handles IMAX, 4DX, and VIP screenings.
+2. `StandardShowQueue`: Handles standard 2D and regular auditorium bookings.
