@@ -19,34 +19,6 @@ A full-lifecycle Enterprise Low-Code application built on **Pega Platform 24.x /
 
 ---
 
-## 📂 Repository Structure & Artifact Index
-
-```text
-├── MovieTicket_Sameer_Kumar.docx          # Official NIP submission document with all 10 embedded screenshots
-├── MovieTicket_Sameer_Kumar.md            # Markdown mirror of project submission document
-├── README.md                              # Main documentation, architecture, and guide (this file)
-├── PEGA_BLUEPRINT_SPECIFICATION.md        # Comprehensive technical specification & rule inventory
-├── APP_STUDIO_CONFIGURATION_GUIDE.md      # Step-by-step App Studio click-by-click configuration manual
-├── pega_blueprint_movie_ticket_booking.json # Pega GenAI Blueprint JSON definition
-├── test_suite.py                          # Automated Python test suite for business rules & SLA validation
-├── create_customized_pega_screenshots.py  # Image processing script generating pixel-perfect evidence
-├── screenshots/                           # High-resolution screenshots for all 10 user stories (US-001 to US-010)
-│   ├── us001_submit_request.png
-│   ├── us002_check_availability.png
-│   ├── us003_calculate_cost.png
-│   ├── us004_confirm_booking.png
-│   ├── us005_movie_show_data.png
-│   ├── us006_review_details.png
-│   ├── us007_process_booking.png
-│   ├── us008_notify_confirmation.png
-│   ├── us009_define_sla.png
-│   └── us010_route_show_type.png
-└── web_portal/                            # Interactive local simulation portal
-    ├── index.html
-    ├── styles.css
-    ├── app.js
-    └── server.py
-```
 
 ---
 
